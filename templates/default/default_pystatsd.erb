@@ -1,0 +1,15 @@
+################################################################
+## Drop by Chef, recipe pystatsd, template default_pystatsd.erb 
+################################################################
+
+#https://pypi.python.org/pypi/pystatsd/
+
+LOCAL_PYSTATD_PORT=<%=node["graphite"]["pystatsd"]["port"]%>
+LOCAL_PYSTATD_NAME=<%=(node["cloud"]) ? node["cloud"]["local_ipv4"] : node["ipaddress"] %>
+PCT=<%=node["graphite"]["pystatsd"]["pct"]%>
+FLUSH_INTERVAL=<%=node["graphite"]["pystatsd"]["flush_intervall"]%>
+<%if node["graphite"]["pystatsd"]["type"] == "graphite"%>
+GRAPHITE_HOST=<%=(@graphite["cloud"]) ? @graphite["cloud"]["local_ipv4"] : @graphite["ipaddress"] %>
+GRAPHITE_PORT=<%= (@graphite["carbon"]) ? @graphite["carbon"]["line_receiver_port"] : "2003" %> #port that carbon-cache is running on
+<%end%>
+USER=<%=node["graphite"]["pystatsd"]["user"]%>

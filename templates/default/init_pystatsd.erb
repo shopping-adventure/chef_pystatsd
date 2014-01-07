@@ -1,0 +1,49 @@
+################################################################
+## Drop by Chef, recipe pystatsd, template init_pystatsd.erb
+################################################################
+
+# pystatsd upstart script
+# 2011 - rob@atlanticdynamic.com
+# copy this to /etc/init/pystatsd.conf
+#
+
+description "start and stop the py-statsd server"
+version "1.1"
+author "Rob Terhaar"
+
+description "py-statsd server"
+respawn limit 15 5
+#oom never
+
+start on (local-filesystems
+    and net-device-up IFACE!=lo)
+stop on shutdown
+
+respawn
+
+pre-start script
+  . /etc/default/pystatsd
+end script
+
+script
+  . /etc/default/pystatsd
+  exec su -s /bin/sh -c "/usr/bin/pystatsd-server \
+--name $LOCAL_PYSTATD_NAME \
+<%if node["graphite"]["pystatsd"]["port"]%>
+--port $LOCAL_PYSTATD_PORT \
+<%end%>
+<%if node["graphite"]["pystatsd"]["pct"]%>
+--pct $PCT \
+<%end%>
+<%if node["graphite"]["pystatsd"]["flush_intervall"]%>
+--flush-interval $FLUSH_INTERVAL \
+<%end%>
+<%if node["graphite"]["pystatsd"]["type"]=="graphite"%>
+--graphite-host $GRAPHITE_HOST \
+--graphite-port $GRAPHITE_PORT" $USER
+<%end%>
+end script
+
+post-stop script
+end script
+
